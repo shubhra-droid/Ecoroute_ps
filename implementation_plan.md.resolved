@@ -1,0 +1,43 @@
+# EcoRoute Integration Implementation Plan
+
+The objective is to connect the React frontend, Node.js backend, and FastAPI ML service to calculate and suggest the greenest travel route.
+
+## User Review Required
+
+> [!NOTE]
+> I will be initializing a [package.json](file:///c:/Users/SHUBHRA%20NEGI/Desktop/Ecoroute_ps/package.json) in the `backend/` directory because one doesn't seem to exist there yet, and installing `axios`. I will also add some example UI code for the frontend using `react-leaflet`. Please confirm this approach.
+
+## Proposed Changes
+
+### Backend Components
+
+#### [MODIFY] [server.js](file:///C:/Users/SHUBHRA%20NEGI/Desktop/Ecoroute_ps/backend/server.js)
+Update to mount the new `/api/eco-route` router.
+
+#### [NEW] [ecoRoute.js](file:///C:/Users/SHUBHRA%20NEGI/Desktop/Ecoroute_ps/backend/routes/ecoRoute.js)
+Define the `POST /api/eco-route` endpoint. It will orchestrate fetching route data, evaluating transport modes, and choosing the greenest option.
+
+#### [NEW] [routingService.js](file:///C:/Users/SHUBHRA%20NEGI/Desktop/Ecoroute_ps/backend/services/routingService.js)
+A utility service using `axios` to call the external OSRM routing API to get distance, duration, and GeoJSON geometry.
+
+#### [NEW] [mlService.js](file:///C:/Users/SHUBHRA%20NEGI/Desktop/Ecoroute_ps/backend/services/mlService.js)
+A utility service to call the local FastAPI ML endpoint (`http://127.0.0.1:8000/predict-eco-score`) to get eco scores for various transport modes (`car`, `bus`, `metro`, `bike`, `walking`).
+
+### Frontend Integration
+
+#### [NEW] [EcoRouteMap.jsx](file:///C:/Users/SHUBHRA%20NEGI/Desktop/Ecoroute_ps/frontend/src/EcoRouteMap.jsx)
+Provide a complete React component example combining `react-leaflet` to capture start/destination, make a `POST` request to the backend, draw the GeoJSON route, and display alternative routes.
+
+#### [MODIFY] [package.json (Frontend)](file:///C:/Users/SHUBHRA%20NEGI/Desktop/Ecoroute_ps/frontend/package.json)
+Install missing UI dependencies: `axios`, `leaflet`, `react-leaflet` if they are not present.
+
+## Verification Plan
+
+### Automated Tests
+- N/A - The user hasn't specified automated tests for these services, but we will add logic checks in the API returning 500s on failure.
+
+### Manual Verification
+1. Start the Python FastAPI server on port 8000.
+2. Start the Node.js backend on port 5000 (`node server.js`).
+3. Start the React frontend (`npm start`).
+4. We will visually click two points on the map and verify if the backend successfully orchestrates both OSRM and ML API and returns the correct payload, which then should display on the map and UI.

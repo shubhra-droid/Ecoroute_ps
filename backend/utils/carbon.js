@@ -1,16 +1,18 @@
 const emissionFactors = {
-  car: 120,
-  bus: 80,
-  bike: 0,
-  walk: 0,
-  metro: 45
+  car:120,
+  bus:80,
+  bike:0,
+  walk:0,
+  metro:45
 };
 
 function calculateCarbon(distance,mode){
 
-  const factor = emissionFactors[mode];
+  const factor = emissionFactors[mode] || 100;
 
-  return (distance/1000)*factor;
+  const km = distance/1000;
+
+  return km*factor;
 
 }
 
