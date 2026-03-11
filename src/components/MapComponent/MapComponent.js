@@ -25,16 +25,7 @@ function ChangeView({ bounds }) {
 
 function MapComponent({ routeData }) {
   if (!routeData) {
-    return (
-      <div style={{ padding: "0 30px" }}>
-        <MapContainer center={[22.5937, 78.9629]} zoom={4} style={{ height: "400px", width: "100%", borderRadius: "8px" }}>
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
-          />
-        </MapContainer>
-      </div>
-    );
+    return null;
   }
 
   const { sourceCity, destCity, geometry } = routeData;

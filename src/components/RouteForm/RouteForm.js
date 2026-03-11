@@ -31,7 +31,7 @@ function RouteForm({ setRouteData }) {
 
       <div style={{marginBottom: "10px"}}>
         <label style={{marginRight: "10px"}}>Source</label>
-        <select value={source} onChange={(e) => setSource(e.target.value)}>
+        <select value={source} onChange={(e) => { setSource(e.target.value); setRouteData(null); }}>
           {CITIES.map((city) => (
             <option key={city.name} value={city.name}>{city.name}</option>
           ))}
@@ -40,7 +40,7 @@ function RouteForm({ setRouteData }) {
 
       <div style={{marginBottom: "10px"}}>
         <label style={{marginRight: "10px"}}>Destination</label>
-        <select value={destination} onChange={(e) => setDestination(e.target.value)}>
+        <select value={destination} onChange={(e) => { setDestination(e.target.value); setRouteData(null); }}>
           {CITIES.map((city) => (
             <option key={city.name} value={city.name}>{city.name}</option>
           ))}
@@ -51,7 +51,7 @@ function RouteForm({ setRouteData }) {
         <label style={{marginRight: "10px"}}>Mode</label>
         <select
           value={mode}
-          onChange={(e)=>setMode(e.target.value)}
+          onChange={(e) => { setMode(e.target.value); setRouteData(null); }}
         >
           <option value="car">Car</option>
           <option value="bike">Bike</option>
