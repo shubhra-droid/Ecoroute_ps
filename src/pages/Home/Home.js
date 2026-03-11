@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Header from "../../components/Header/Header";
 import RouteForm from "../../components/RouteForm/RouteForm";
 import RouteResult from "../../components/RouteResult/RouteResult";
+import MapComponent from "../../components/MapComponent/MapComponent";
 
 function Home() {
 
@@ -13,6 +14,8 @@ function Home() {
       <Header />
 
       <RouteForm setRouteData={setRouteData} />
+
+      <MapComponent routeData={routeData} />
 
       <RouteResult routeData={routeData} />
 
