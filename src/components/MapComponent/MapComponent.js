@@ -8,10 +8,10 @@ import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
 let DefaultIcon = L.icon({
-    iconUrl: icon,
-    shadowUrl: iconShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41]
+  iconUrl: icon,
+  shadowUrl: iconShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41]
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
@@ -41,7 +41,7 @@ function MapComponent({ routeData }) {
 
   // GeoJSON coordinates are in [lng, lat], but Leaflet Polyline expects [lat, lng]
   const positions = geometry.coordinates.map(coord => [coord[1], coord[0]]);
-  
+
   const bounds = L.latLngBounds([sourceCity.coords, destCity.coords]);
 
   return (
