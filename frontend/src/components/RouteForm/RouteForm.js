@@ -1,25 +1,49 @@
 import React, { useState } from "react";
 import { getRoute } from "../../services/api";
 
+const getCoordinates = async (place) => {
+  const res = await fetch(
+    `https://nominatim.openstreetmap.org/search?format=json&q=${place}`
+  );
+  const data = await res.json();
+
+  if (data && data.length > 0) {
+    return {
+      lat: data[0].lat,
+      lon: data[0].lon,
+    };
+  }
+  return null;
+};
+
 function RouteForm({ setRouteData }) {
 
-  const [startLat, setStartLat] = useState("");
-  const [startLon, setStartLon] = useState("");
-  const [endLat, setEndLat] = useState("");
-  const [endLon, setEndLon] = useState("");
+  const [source, setSource] = useState("");
+  const [destination, setDestination] = useState("");
   const [mode, setMode] = useState("car");
 
   const handleSubmit = async () => {
+    const start = await getCoordinates(source);
+    const end = await getCoordinates(destination);
 
-    const data = await getRoute(
-      startLat,
-      startLon,
-      endLat,
-      endLon,
-      mode
-    );
+    console.log("Start:", start);
+    console.log("End:", end);
 
-    setRouteData(data);
+    if (start && end) {
+      // Backend expects start: { lat, lng } but getCoordinates returns { lat, lon }
+      const startPayload = { lat: start.lat, lng: start.lon };
+      const endPayload = { lat: end.lat, lng: end.lon };
+
+      const data = await getRoute(
+        startPayload,
+        endPayload,
+        mode
+      );
+
+      setRouteData(data);
+    } else {
+      alert("Could not find coordinates for the provided locations. Please try again.");
+    }
   };
 
   return (
@@ -28,27 +52,17 @@ function RouteForm({ setRouteData }) {
       <h2>Enter Route</h2>
 
       <input
-        placeholder="Start Latitude"
-        value={startLat}
-        onChange={(e)=>setStartLat(e.target.value)}
+        type="text"
+        placeholder="Enter Source City"
+        value={source}
+        onChange={(e)=>setSource(e.target.value)}
       />
 
       <input
-        placeholder="Start Longitude"
-        value={startLon}
-        onChange={(e)=>setStartLon(e.target.value)}
-      />
-
-      <input
-        placeholder="End Latitude"
-        value={endLat}
-        onChange={(e)=>setEndLat(e.target.value)}
-      />
-
-      <input
-        placeholder="End Longitude"
-        value={endLon}
-        onChange={(e)=>setEndLon(e.target.value)}
+        type="text"
+        placeholder="Enter Destination City"
+        value={destination}
+        onChange={(e)=>setDestination(e.target.value)}
       />
 
       <select

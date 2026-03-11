@@ -1,13 +1,21 @@
 export async function getRoute(
-  startLat,
-  startLon,
-  endLat,
-  endLon,
+  source,
+  destination,
   mode
 ) {
 
   const response = await fetch(
-    `http://localhost:8000/route?start_lat=${startLat}&start_lon=${startLon}&end_lat=${endLat}&end_lon=${endLon}&mode=${mode}`
+    `http://localhost:5000/api/route`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        start: source,
+        end: destination,
+        mode: mode
+      })
+    }
   );
 
   const data = await response.json();

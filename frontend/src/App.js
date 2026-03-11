@@ -1,29 +1,25 @@
-import React from "react";
-import MapSelector from "./components/MapSelector";
+import React, { useState } from "react";
+import RouteForm from "./components/RouteForm/RouteForm";
+import RouteResult from "./components/RouteResult/RouteResult";
 import "./App.css";
 
-function App(){
+function App() {
+  const [routeData, setRouteData] = useState(null);
 
-  return(
-
+  return (
     <div>
-
       <header className="header">
         Smart Sustainable Travel Planner
       </header>
 
       <div className="container">
-
-        <h2>Select Route on Map</h2>
-
-        <MapSelector/>
-
+        <RouteForm setRouteData={setRouteData} />
+        {routeData && <RouteResult routeData={routeData} />}
       </div>
 
       <footer className="footer">
-        EcoRoute © 2026
+        EcoRoute © 2006
       </footer>
-
     </div>
   );
 }
