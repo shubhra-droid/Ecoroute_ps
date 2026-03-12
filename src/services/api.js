@@ -1,11 +1,27 @@
-import { CITIES } from "../utils/cities";
-
 export async function getRoute(sourceName, destinationName) {
-  const sourceCity = CITIES.find(c => c.name === sourceName);
-  const destCity = CITIES.find(c => c.name === destinationName);
+  const getCoordinates = async (name) => {
+    try {
+      // Use Nominatim to geocode text into coordinates
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(name)}&format=json&limit=1`);
+      const data = await response.json();
+      if (data && data.length > 0) {
+        return {
+          name: data[0].display_name.split(',')[0],
+          coords: [parseFloat(data[0].lat), parseFloat(data[0].lon)]
+        };
+      }
+      return null;
+    } catch (e) {
+      console.error("Geocoding error:", e);
+      return null;
+    }
+  };
+
+  const sourceCity = await getCoordinates(sourceName);
+  const destCity = await getCoordinates(destinationName);
 
   if (!sourceCity || !destCity) {
-    throw new Error("Invalid source or destination city");
+    throw new Error("Could not find coordinates for the given locations. Try adding a state or country.");
   }
 
   const startStr = `${sourceCity.coords[1]},${sourceCity.coords[0]}`;

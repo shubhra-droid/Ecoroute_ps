@@ -1,16 +1,22 @@
 import React, { useState } from "react";
 import { getRoute } from "../../services/api";
-import { CITIES } from "../../utils/cities";
 
 function RouteForm({ setRouteData }) {
 
-  const [source, setSource] = useState(CITIES[0].name);
-  const [destination, setDestination] = useState(CITIES[1].name);
+  const [source, setSource] = useState("");
+  const [destination, setDestination] = useState("");
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
+    if (!source.trim() || !destination.trim()) {
+      setError("Please enter both a source and destination.");
+      return;
+    }
+    
     try {
       setError(null);
+      setLoading(true);
       const data = await getRoute(
         source,
         destination
@@ -18,7 +24,9 @@ function RouteForm({ setRouteData }) {
       setRouteData(data);
     } catch (err) {
       console.error(err);
-      setError("Failed to fetch route. Please try again.");
+      setError(err.message || "Failed to fetch route. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -29,24 +37,28 @@ function RouteForm({ setRouteData }) {
 
       <div style={{marginBottom: "10px"}}>
         <label style={{marginRight: "10px"}}>Source</label>
-        <select value={source} onChange={(e) => { setSource(e.target.value); setRouteData(null); }}>
-          {CITIES.map((city) => (
-            <option key={city.name} value={city.name}>{city.name}</option>
-          ))}
-        </select>
+        <input 
+          type="text"
+          value={source} 
+          onChange={(e) => { setSource(e.target.value); setRouteData(null); }}
+          placeholder="e.g. New York"
+          style={{padding: "5px", width: "200px"}}
+        />
       </div>
 
       <div style={{marginBottom: "10px"}}>
         <label style={{marginRight: "10px"}}>Destination</label>
-        <select value={destination} onChange={(e) => { setDestination(e.target.value); setRouteData(null); }}>
-          {CITIES.map((city) => (
-            <option key={city.name} value={city.name}>{city.name}</option>
-          ))}
-        </select>
+        <input 
+          type="text"
+          value={destination} 
+          onChange={(e) => { setDestination(e.target.value); setRouteData(null); }}
+          placeholder="e.g. Los Angeles"
+          style={{padding: "5px", width: "200px"}}
+        />
       </div>
 
-      <button onClick={handleSubmit} style={{marginTop: "10px", padding: "5px 15px"}}>
-        Find Route
+      <button onClick={handleSubmit} disabled={loading} style={{marginTop: "10px", padding: "5px 15px"}}>
+        {loading ? "Searching..." : "Find Route"}
       </button>
 
       {error && <p style={{color: "red", marginTop: "10px"}}>{error}</p>}
