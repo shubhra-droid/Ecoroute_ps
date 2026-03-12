@@ -6,7 +6,6 @@ function RouteForm({ setRouteData }) {
 
   const [source, setSource] = useState(CITIES[0].name);
   const [destination, setDestination] = useState(CITIES[1].name);
-  const [mode, setMode] = useState("car");
   const [error, setError] = useState(null);
 
   const handleSubmit = async () => {
@@ -14,8 +13,7 @@ function RouteForm({ setRouteData }) {
       setError(null);
       const data = await getRoute(
         source,
-        destination,
-        mode
+        destination
       );
       setRouteData(data);
     } catch (err) {
@@ -44,18 +42,6 @@ function RouteForm({ setRouteData }) {
           {CITIES.map((city) => (
             <option key={city.name} value={city.name}>{city.name}</option>
           ))}
-        </select>
-      </div>
-
-      <div style={{marginBottom: "10px"}}>
-        <label style={{marginRight: "10px"}}>Mode</label>
-        <select
-          value={mode}
-          onChange={(e) => { setMode(e.target.value); setRouteData(null); }}
-        >
-          <option value="car">Car</option>
-          <option value="bike">Bike</option>
-          <option value="walk">Walk</option>
         </select>
       </div>
 

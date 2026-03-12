@@ -9,6 +9,10 @@ function RouteResult({ routeData }) {
 
       <h2>Route Details</h2>
 
+      <p>Mode: <span style={{textTransform: 'capitalize'}}>{routeData.mode}</span></p>
+
+      <p>Eco Score: {routeData.ecoScore}</p>
+
       <p>Distance: {routeData.distance_km} km</p>
 
       <p>Time: {routeData.duration_min} minutes</p>

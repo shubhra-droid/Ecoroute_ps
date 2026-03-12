@@ -1,6 +1,6 @@
 import { CITIES } from "../utils/cities";
 
-export async function getRoute(sourceName, destinationName, mode) {
+export async function getRoute(sourceName, destinationName) {
   const sourceCity = CITIES.find(c => c.name === sourceName);
   const destCity = CITIES.find(c => c.name === destinationName);
 
@@ -8,43 +8,61 @@ export async function getRoute(sourceName, destinationName, mode) {
     throw new Error("Invalid source or destination city");
   }
 
-  // OSRM mapping: car -> driving, bike -> cycling, walk -> walking
-  let osrmMode = "driving";
-  if (mode === "bike") osrmMode = "cycling";
-  if (mode === "walk") osrmMode = "walking";
-
-  // OSRM expects coordinates in lng,lat
   const startStr = `${sourceCity.coords[1]},${sourceCity.coords[0]}`;
   const endStr = `${destCity.coords[1]},${destCity.coords[0]}`;
 
-  const response = await fetch(
-    `https://router.project-osrm.org/route/v1/${osrmMode}/${startStr};${endStr}?overview=full&geometries=geojson`
-  );
+  const modesInfo = [
+    { mode: "walk", osrmMode: "walking", baseEcoScore: 100, carbonMultiplier: 0 },
+    { mode: "bike", osrmMode: "cycling", baseEcoScore: 80, carbonMultiplier: 40 },
+    { mode: "car", osrmMode: "driving", baseEcoScore: 30, carbonMultiplier: 120 }
+  ];
 
-  const data = await response.json();
-  
-  if (data.code !== "Ok") {
-    throw new Error("Unable to fetch route from OSRM");
+  const fetchRouteForMode = async (modeInfo) => {
+    try {
+      const response = await fetch(
+        `https://router.project-osrm.org/route/v1/${modeInfo.osrmMode}/${startStr};${endStr}?overview=full&geometries=geojson`
+      );
+      const data = await response.json();
+      
+      if (data.code !== "Ok") {
+        return null;
+      }
+
+      const route = data.routes[0];
+      const distance_km = (route.distance / 1000).toFixed(2);
+      const duration_min = Math.round(route.duration / 60);
+
+      // Filter out unreasonable modes
+      if (modeInfo.mode === "walk" && duration_min > 120) return null;
+      if (modeInfo.mode === "bike" && duration_min > 300) return null;
+      
+      const carbon_grams = Math.round(distance_km * modeInfo.carbonMultiplier);
+
+      return {
+        mode: modeInfo.mode,
+        distance_km,
+        duration_min,
+        carbon_grams,
+        ecoScore: modeInfo.baseEcoScore,
+        geometry: route.geometry,
+        sourceCity,
+        destCity
+      };
+    } catch (err) {
+      return null;
+    }
+  };
+
+  const results = await Promise.all(modesInfo.map(fetchRouteForMode));
+  const validModes = results.filter(result => result !== null);
+
+  if (validModes.length === 0) {
+    throw new Error("Unable to fetch routes for any mode");
   }
 
-  const route = data.routes[0];
-  const distance_km = (route.distance / 1000).toFixed(2);
-  const duration_min = Math.round(route.duration / 60);
-  
-  // mock carbon emission
-  let carbonMultiplier = 0;
-  if (mode === "car") carbonMultiplier = 120; // g per km
-  if (mode === "bike") carbonMultiplier = 40; 
-  if (mode === "walk") carbonMultiplier = 0;
-  
-  const carbon_grams = Math.round(distance_km * carbonMultiplier);
+  // Select the mode with the highest eco score
+  validModes.sort((a, b) => b.ecoScore - a.ecoScore);
+  const bestMode = validModes[0];
 
-  return {
-    distance_km,
-    duration_min,
-    carbon_grams,
-    geometry: route.geometry, // GeoJSON format coordinates
-    sourceCity,
-    destCity
-  };
+  return bestMode;
 }
